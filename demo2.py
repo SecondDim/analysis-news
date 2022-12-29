@@ -1,14 +1,18 @@
 import os
 import sys
-from time import sleep
 
-import redis
-import json
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+# Suppress as many warnings as possible
+# os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+# from tensorflow.python.util import deprecation
+# deprecation._PRINT_DEPRECATION_WARNINGS = False
+# import tensorflow as tf
+# tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 # from ckiptagger import data_utils, construct_dictionary, WS, POS, NER
 from ckiptagger import  WS, POS, NER
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def print_word_pos_sentence(word_sentence, pos_sentence):
     assert len(word_sentence) == len(pos_sentence)
@@ -18,7 +22,6 @@ def print_word_pos_sentence(word_sentence, pos_sentence):
     print()
 
 def main():
-    redis_client = redis.Redis('localhost', 6379, 0)
 
     # Load model without CPU
     ws = WS("./data")
@@ -26,14 +29,8 @@ def main():
     ner = NER("./data")
 
     while True:
-
-        _item = redis_client.rpop('ckiptagger_worker_queue')
-        if _item == None:
-            sleep(60)
-            continue
-
-        item = json.loads(_item)
-        sentence_list = item['text']
+        sentence = input("input:")
+        sentence_list = [sentence]
 
         word_sentence_list = ws(sentence_list)
 

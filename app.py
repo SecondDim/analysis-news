@@ -5,10 +5,10 @@ from time import sleep
 import redis
 import json
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 # from ckiptagger import data_utils, construct_dictionary, WS, POS, NER
 from ckiptagger import  WS, POS, NER
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def print_word_pos_sentence(word_sentence, pos_sentence):
     assert len(word_sentence) == len(pos_sentence)
@@ -48,7 +48,20 @@ def main():
             for entity in sorted(entity_sentence_list[i]):
                 print(entity)
 
+def test():
+    redis_client = redis.Redis('localhost', 6379, 0)
+
+    while True:
+        _item = redis_client.rpop('ckiptagger_worker_queue')
+        if _item == None:
+            sleep(5)
+            continue
+        item = json.loads(_item)
+        print(item['title'])
+        # print(item['tag'])
+        print(item['url'])
+        print('-'*40)
 
 if __name__ == "__main__":
-    main()
+    test()
     sys.exit()

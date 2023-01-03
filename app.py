@@ -58,7 +58,7 @@ def test():
             continue
         item = json.loads(_item)
         print(item['title'])
-        # print(item['tag'])
+        print(item['tags'])
         print(item['url'])
         print('-'*40)
 

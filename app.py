@@ -5,10 +5,15 @@ from time import sleep
 import redis
 import json
 
+from datetime import datetime
+import pytz
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # from ckiptagger import data_utils, construct_dictionary, WS, POS, NER
 from ckiptagger import  WS, POS, NER
+
+tz = pytz.timezone('Asia/Taipei')
 
 pos_list = ['Na', 'Nb', 'Nc', 'Ncd', 'Nd', 'Nep', 'Neqa', 'Neqb', 'Nes', 'Neu', 'Nf', 'Ng', 'Nh', 'Nv']
 pos_exlist = [
@@ -46,7 +51,8 @@ def print_word_pos_sentence(word_sentence, pos_sentence):
     print()
 
 def run_process(item, ws, pos, ner):
-    cache_word = []
+    cache_word_pos = []
+    cache_word_ner= []
 
     time_epoch = item['time_epoch']
     url = item['url']
@@ -55,6 +61,7 @@ def run_process(item, ws, pos, ner):
     if item['title'] != None:
         sentence_list.append(item['title'])
 
+    print("time_epoch: %s" % datetime.fromtimestamp(time_epoch, tz).isoformat())
     print(url)
 
     if len(sentence_list) == 0:
@@ -87,21 +94,25 @@ def run_process(item, ws, pos, ner):
         for word, _pos in zip(word_sentence, pos_sentence):
             # if pos in pos_list and len(word) > 1 or True: # 先不做資料過濾
 
-            if word in cache_word or _pos in pos_exlist:
+            if word in cache_word_pos or _pos in pos_exlist:
                 continue
 
             redis_client.zincrby('pos_' + str(time_epoch), 1, f"{word},,{_pos}")
-            cache_word.append(word)
+            cache_word_pos.append(word)
 
-            print(f"{word}({_pos})", end="\u3000")
+            # print(f"{word}({_pos})", end="\u3000")
 
-        print('\n')
-        print('-'*40)
+        # print('\n')
+        # print('-'*40)
 
         for entity in sorted(entity_sentence):
             _, _, _ner, word = entity
+
+            if word in cache_word_ner:
+                continue
+
             redis_client.zincrby('ner_' + str(time_epoch), 1, f"{word},,{_ner}")
-            print(entity)
+            cache_word_ner.append(word)
 
     print('='*40)
 

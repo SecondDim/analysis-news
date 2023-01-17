@@ -31,6 +31,28 @@ https://drive.google.com/drive/folders/105IKCb88evUyLKlLondvDBoh7Dy_I1tm
 https://drive.google.com/drive/folders/15BDjL2IaX3eYdFVzT422VwCb743Hrbi3
 ```
 
+## Usage
+
+```bash
+# 啟動 app
+python app.py
+```
+
+```bash
+# 分析結果
+# 五分鐘內的單詞出現次數
+python bash.py pos5
+
+# 五分鐘內的實體出現次數
+python bash.py ner5
+
+# 一小時內的實體出現次數
+python bash.py ner60
+
+# 二十四內的實體出現次數
+python bash.py ner24
+```
+
 ## 參考資料
 
 -----相關套件-----
